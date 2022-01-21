@@ -1,0 +1,96 @@
+#error-message
+{
+    width: 90%;
+    text-align: center;
+    padding: 10px 0;
+    background-color: var(--light-red);
+    border: 2px solid var(--red);
+    font-size: 14px;
+    margin: 15px auto 0 auto;
+}
+
+.log-wrapper
+{
+    width: max-content;
+    margin: 15px auto;
+    border: 10px solid var(--light-blue);
+}
+
+.log
+{
+    display: flex;
+    flex-direction: column;
+    width: 550px;
+    border: 1px solid var(--blue);
+    padding: 30px;
+}
+
+.log label
+{
+    font-size: 14px;
+}
+
+.log .field
+{
+    border: 1px solid var(--light-blue);
+    height: 40px;
+    padding: 0 10px;
+    font-size: 18px;
+    margin: 5px 0;
+}
+
+.field.invalid
+{
+    border-color: var(--red);
+}
+
+/* .field:invalid
+{
+    border-color: var(--red);
+} */
+
+.password-header 
+{
+    display: flex;
+}
+
+.password-header div
+{
+    margin-left: auto;
+}
+
+.log-btn
+{
+    width: max-content;
+    padding: 5px 50px;
+    font-size: 18px;
+    margin: 15px auto;
+}
+
+#forgot
+{
+    display: flex;
+    justify-content: center;
+}
+
+#forgot a:first-child::after
+{
+    content: "";
+    width: 0;
+    height: 0;
+    border-right: 1px solid black;
+    margin: 0 5px;
+}
+
+#redirect-link
+{
+    background-color: var(--light-blue);
+    color: var(--blue);
+    font-weight: 700;
+    margin-bottom: 0;
+}
+
+label[for="agree"] a
+{
+    display: unset;
+}

@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}MAL - Panel{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/splide.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('js/splide.min.js') }}"></script>
+    <script src="{{ asset('js/index.js') }}"></script>
+{% endblock %}
+
+{% block headerTitle %}
+    {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+        My Panel
+    {% else %}
+        Welcome to MAL
+    {% endif %}
+{% endblock %}
+
+{% block headerLink %}
+    {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+        <a href="#" class="link"><img src="{{ asset('/images/icons/cog.svg') }}" alt="cog-icon">Panel Settings</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% endblock %}

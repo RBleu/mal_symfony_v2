@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Login - MAL{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/loginSignup.css') }}">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('js/loginSignup.js') }}"></script>
+{% endblock %}
+
+{% block headerTitle %}Login{% endblock %}
+
+{% block content %}
+    {% if error %}
+        <div id="error-message">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+
+    <div class="log-wrapper">
+        <form class="log" method="post">
+            <label for="username">Username</label>
+            <input type="text" name="username" class="field username" minlength="4" maxlength="20" pattern="^[\w]{4,20}$">
+            <div class="password-header">
+                <label for="password">Password</label>
+                <div>
+                    <input class="show-pass" type="checkbox" name="show-pass">
+                    <label for="show-pass">Show Password</label>
+                </div>
+            </div>
+            <input type="password" name="password" class="field plainPassword" minlength="8" maxlength="50" pattern="^.{8,50}$">
+            <div>
+                <input type="checkbox" name="_remember_me">
+                <label for="stay-connect">Stay logged in ?</label>
+            </div>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <input class="btn log-btn" type="button" value="Login">
+            <div id="forgot">
+                <a href="#" class="link">Forgot username ?</a>
+                <a href="#" class="link">Forgot password ?</a>
+            </div>
+            <a id="redirect-link" class="log-btn" href="{{ path('signup') }}">Sign Up</a>
+        </form>
+    </div>
+{% endblock %}

@@ -1,19 +1,109 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
-        {# Run `composer require symfony/webpack-encore-bundle` to start using Symfony UX #}
-        {% block stylesheets %}
-            {{ encore_entry_link_tags('app') }}
-        {% endblock %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MAL{% endblock %}</title>
 
-        {% block javascripts %}
-            {{ encore_entry_script_tags('app') }}
-        {% endblock %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/template.css')}}">
+
+    {% block stylesheets %}{% endblock %}
+
+    <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
+
+    {% block javascripts %}{% endblock %}
+
+    <script src="{{ asset('js/script.js') }}"></script>
+</head>
+<body>
+    <div id="mal">
+        <div id="header">
+            <div id="logo">
+                <a href="{{ path('index') }}"><img src="{{ asset('images/logo.png') }}" alt="logo"></a>
+            </div>
+            <div id="header-menu">
+                {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                    <div class="header-icon">
+                        <a href="#" class="header-img has-sub-menu"><img src="{{ asset('images/icons/list.svg') }}" alt="list-icon"></a>
+                        <div class="header-sub-menu">
+                            <div class="header-sub-menu-item"><a href="{{ path('animelist', { username: app.user.username }) }}">Anime List</a></div>
+                            <div class="header-sub-menu-item"><a href="#">Manga List</a></div>
+                            <div class="header-sub-menu-item"><a href="#">Quick Add</a></div>
+                            <div class="header-sub-menu-item"><a href="#">List Settings</a></div>
+                        </div>
+                    </div>
+                    <div class="header-icon">
+                        <a href="#" class="header-img"><img src="{{ asset('images/icons/envelope.svg') }}" alt="message-icon"></a>
+                    </div>
+                    <div class="header-icon">
+                        <a href="#" class="header-img"><img src="{{ asset('images/icons/bell.svg') }}" alt="notification-icon"></a>
+                    </div>
+                    <div id="profile">
+                        <div id="profile-menu">
+                            <a href="#" id="username" class="has-sub-menu">{{ app.user.username }}</a>
+                            <div class="header-sub-menu">
+                                <div class="header-sub-menu-item"><a href="{{ path('profile', { username: app.user.username }) }}">Profile</a></div>
+                                <div class="header-sub-menu-item"><a href="#">Friends</a></div>
+                                <div class="header-sub-menu-item"><a href="#">Clubs</a></div>
+                                <div class="header-sub-menu-item"><a href="#">Blog Posts</a></div>
+                                <div class="header-sub-menu-item"><a href="#">Reviews</a></div>
+                                <div class="header-sub-menu-item"><a href="#">Recommendations</a></div>
+                                <div class="header-sub-menu-item"><a href="#"><img src="{{ asset('images/icons/book.svg') }}" alt="book-icon">Bookshelf</a></div>
+                                <div class="header-sub-menu-item"><a href="#"><img src="{{ asset('images/icons/cog.svg') }}" alt="cog-icon">Account Settings</a></div>
+                                <div class="header-sub-menu-item"><a href="{{ path('app_logout') }}"><img src="{{ asset('images/icons/logout.svg') }}" alt="logout-icon">Logout</a></div>
+                            </div>
+                        </div>
+                        <a href="{{ path('profile', { username: app.user.username }) }}" id="profile-img"><img src="{{ asset('images/profile_images/profile.png') }}" alt="profile-image"></a>
+                    </div>
+                {% else %}
+                    <a href="{{ path('app_login') }}" id="login-btn" class="btn">Login</a>
+                    <a href="{{ path('signup') }}" id="signup-btn" class="btn">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+        <div id="navbar">
+            <div id="menu">
+                <div class="menu-item">
+                    <a href="#" class="menu-title">Anime</a>
+                    <div class="sub-menu">
+                        <a href="#" class="sub-menu-item">Anime Search</a>
+                        <a href="#" class="sub-menu-item">Top Anime</a>
+                        <a href="#" class="sub-menu-item">Seasonal Anime</a>
+                        <a href="#" class="sub-menu-item">Videos</a>
+                        <a href="#" class="sub-menu-item">Reviews</a>
+                        <a href="#" class="sub-menu-item">Recommendations</a>
+                        <a href="#" class="sub-menu-item">2021 Challenge</a>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <a href="#" class="menu-title">Manga</a>
+                    <div class="sub-menu">
+                        <a href="#" class="sub-menu-item">Manga Search</a>
+                        <a href="#" class="sub-menu-item">Top Manga</a>
+                        <a href="#" class="sub-menu-item">Manga Store</a>
+                        <a href="#" class="sub-menu-item">Reviews</a>
+                        <a href="#" class="sub-menu-item">Recommendations</a>
+                        <a href="#" class="sub-menu-item">2021 Challenge</a>
+                    </div>
+                </div>
+            </div>
+            <form action="/search" id="searchbar" method="GET">
+                <div id="searchbar-container">
+                    <input type="text" name="q" id="search" autocomplete="off">
+                    <div id="search-result"></div>
+                </div>
+                <button id="search-btn" type="submit"><img src="{{ asset('images/icons/search.svg') }}" alt="search-icon"></button>
+            </form>
+        </div>
+        <div id="content-wrapper">
+            <div id="content-header">
+                <div id="content-header-title">{% block headerTitle %}{% endblock %}</div>
+                {% block headerLink %}{% endblock %}
+            </div>
+            <div id="content">{% block content %}{% endblock %}</div>
+        </div>
+    </div>
+</body>
 </html>

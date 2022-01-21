@@ -1,0 +1,217 @@
+#content-container
+{
+    display: flex;
+    padding: 10px 0;
+}
+
+#content-left
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 250px;
+    border-right: 1px solid var(--light-blue);
+    padding: 0 12.5px;
+}
+
+#joined
+{
+    display: flex;
+    width: 100%;
+    margin: 10px 0;
+    font-size: 13px;
+    background-color: var(--light-gray);
+    padding: 5px;
+}
+
+#joined span
+{
+    font-weight: 700;
+}
+
+#joined div
+{
+    margin-left: auto;
+}
+
+#content-right
+{
+    width: 850px;
+    padding: 0 10px;
+}
+
+#stats > .info-content
+{
+    display: flex;
+}
+
+#stats .info-content > .info
+{
+    width: 50%;
+}
+
+#stats .info-content > .info:first-child
+{
+    margin-right: 10px;
+}
+
+#stats .info-content .info .info-content
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#stats-graph
+{
+    display: flex;
+    height: 25px;
+    width: 380px;
+    background-color: var(--light-blue);
+    margin: 10px auto;
+}
+
+#stats-graph > div
+{
+    height: 100%;
+}
+
+#stats-detail
+{
+    display: flex;
+    width: 380px;
+    margin: 0;
+}
+
+#stats-detail-left
+{
+    width: 50%;
+    margin-right: 10px;
+}
+
+#stats-detail-left > div,
+#stats-detail-right > div
+{
+    display: flex;
+    align-items: center;
+}
+
+#stats-detail-left > div a
+{
+    margin: 5px 0 5px 10px;
+}
+
+.value
+{
+    margin-left: auto;
+    font-size: 13px;
+    color: black !important;
+}
+
+.circle
+{
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+}
+
+#stats-detail-right
+{
+    width: 50%;
+    font-size: 13px;
+}
+
+#stats-detail-right > div
+{
+    padding: 5px 0;
+    color: var(--dark-gray);
+}
+
+.watching
+{
+    background-color: var(--watching);
+}
+
+.completed
+{
+    background-color: var(--blue);
+}
+
+.on-hold
+{
+    background-color: var(--on-hold);
+}
+
+.dropped
+{
+    background-color: var(--dropped);
+}
+
+.plan-to-watch
+{
+    background-color: var(--plan-to-watch);
+}
+
+#last-anime-updates .info-content
+{
+    padding: 0 10px;
+}
+
+.updated-anime
+{
+    display: flex;
+    align-items: center;
+    height: 60px;
+    width: 100%;
+}
+
+.updated-anime-cover img
+{
+    width: 40px;
+    height: 60px;
+}
+
+.updated-anime-cover img:hover
+{
+    opacity: 0.8;
+}
+
+.updated-anime-infos
+{
+    margin-left: 10px;
+}
+
+.updated-anime-title
+{
+    max-width: 194px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.updated-anime-progress
+{
+    height: 14px;
+    width: 194px;
+    background-color: var(--light-gray);
+    border: 1px solid var(--gray);
+    margin: 7px 0;
+}
+
+.updated-anime-progress div
+{
+    height: 100%;
+    background-color: var(--blue);
+}
+
+.updated-anime-score,
+.modification-date
+{
+    color: #787878;
+    font-size: 13px;
+}
+
+.modification-date
+{
+    margin-left: auto;
+}

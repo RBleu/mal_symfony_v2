@@ -1,0 +1,177 @@
+#content-container
+{
+    display: flex;
+    padding: 10px 0;
+}
+
+#content-left
+{
+    display: flex;
+    justify-content: center;
+    width: 800px;
+    padding: 0 10px;
+}
+
+#content-left .info-content
+{
+    width: max-content;
+    overflow: hidden;
+}
+
+.slide_anime
+{
+    position: relative;
+    width: 160px;
+}
+
+.slide_cover img
+{
+    height: 220px;
+    width: 160px;
+    display: block;
+}
+
+.slide_title
+{
+    display: flex !important;
+    position: absolute;
+    top: 0;
+    font-size: 13px;
+    color: white;
+    text-shadow: 1px 1px 0 black;
+    height: 100%;
+    width: 100%;
+    padding: 5px;
+}
+
+.slide_title span
+{
+    align-self: flex-end;
+}
+
+.slide_title:hover
+{
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.splide__arrow
+{
+    background-color: black;
+    height: 80px;
+    width: 40px;
+    transition: all 0.5s ease-in-out;
+}
+
+.splide__arrow svg
+{
+    filter: invert(100%) sepia(0%) saturate(7489%) hue-rotate(344deg) brightness(106%) contrast(102%);
+}
+
+.splide__arrow--prev
+{
+    border-radius: 0 150px 150px 0;
+    left: -40px;
+}
+
+.splide__arrow--next
+{
+    border-radius: 150px 0 0 150px;
+    right: -40px;
+}
+
+.splide:hover .splide__arrow--prev
+{
+    left: 0;
+}
+
+.splide:hover .splide__arrow--next
+{
+    right: 0;
+}
+
+#content-right
+{
+    width: 300px;
+    padding: 0 10px;
+    border-left: 1px solid var(--light-blue);
+}
+
+.stats
+{
+    display: flex;
+    width: 150px;
+}
+
+.stats div
+{
+    margin-left: auto;
+}
+
+.top
+{
+    margin-top: 15px;
+}
+
+.top-title
+{
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 700;
+    background-color: #dde1ec;
+    padding: 5px;
+}
+
+.top-title a
+{
+    margin-left: auto;
+}
+
+.top-content
+{
+    background-color: #f5f6f9;
+}
+
+.top-anime
+{
+    display: flex;
+    align-items: center;
+    height: 90px;
+}
+
+.top-number
+{
+    width: 24px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--dark-gray);
+}
+
+.top-cover img
+{
+    width: 50px;
+    height: 70px;
+}
+
+.top-infos
+{
+    width: 165px;
+    height: 70px;
+    font-size: 13px;
+    margin-left: 5px;
+}
+
+.top-list
+{
+    width: 35px;
+    margin-right: 5px;
+}
+
+.top-list .add
+{
+    font-size: 11px;
+    background-color: var(--gray);
+    text-align: center;
+    padding: 3px 0;
+    border-radius: 5px;
+}

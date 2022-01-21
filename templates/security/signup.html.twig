@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Sign Up - MAL{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/loginSignup.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('js/loginSignup.js') }}"></script>
+{% endblock %}
+
+{% block headerTitle %}Sign Up{% endblock %}
+
+{% block content %}
+    {% if not form.vars.valid or error %}
+        <div id="error-message">
+            {{ form_errors(form.email) }} 
+            {{ form_errors(form.username) }} 
+            {{ form_errors(form.plainPassword) }} 
+            {{ form_errors(form.plainPasswordConfirm) }} 
+            {{ error }}
+        </div>
+    {% endif %}
+    
+    <div class="log-wrapper">
+        {{ form_start(form, { 'attr': { 'class': 'log' }}) }}
+            <label for="{{ form.email.vars.id }}">Email</label>
+            {{ form_widget(form.email, { 'attr': { 'class': 'field email' }}) }}
+            <label for="{{ form.username.vars.id }}">Username</label>
+            {{ form_widget(form.username, { 'attr': { 'class': 'field username' }}) }}
+            <div class="password-header">
+                <label for="{{ form.plainPassword.vars.id }}">Password</label>
+                <div>
+                    <input class="show-pass" type="checkbox" name="show-pass">
+                    <label for="show-pass">Show Password</label>
+                </div>
+            </div>
+            {{ form_widget(form.plainPassword, { 'attr': { 'class': 'field plainPassword' }}) }}
+            <div class="password-header">
+                <label for="{{ form.plainPasswordConfirm.vars.id }}">Confirm Your Password</label>
+                <div>
+                    <input class="show-pass" type="checkbox" name="show-pass2">
+                    <label for="show-pass2">Show Password</label>
+                </div>
+            </div>
+            {{ form_widget(form.plainPasswordConfirm, { 'attr': { 'class': 'field plainPasswordConfirm' }}) }}
+            <div>
+                <input type="checkbox" name="agree">
+                <label for="agree">I have read and agree to the <a href="#" class="link">Term of Service</a> and <a href="#" class="link">Privacy Policy</a></label>
+            </div>
+
+            <input class="btn log-btn" type="button" value="Create Account">
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

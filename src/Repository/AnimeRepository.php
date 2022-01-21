@@ -30,6 +30,16 @@ class AnimeRepository extends ServiceEntityRepository
         ')->setParameter('premiered', $season)->getResult();
     }
 
+    public function getTopAnimes(string $orderBy, int $limit, string $condition = '1 = 1')
+    {
+        return $this->getEntityManager()->createQuery('
+            SELECT a.id, a.title, a.cover, t.name, a.episodes, a.score, a.members 
+            FROM App\Entity\Anime a
+            INNER JOIN a.type t
+            WHERE '.$condition.'
+            ORDER BY '.$orderBy.' DESC')->setMaxResults($limit)->getResult();
+    }
+
     // /**
     //  * @return Anime[] Returns an array of Anime objects
     //  */

@@ -36,6 +36,54 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->_em->flush();
     }
 
+    public function emailExists(string $email): bool
+    {
+        return (bool) $this->getEntityManager()->createQuery('
+            SELECT u
+            FROM App\Entity\User u
+            WHERE u.email = :email
+        ')->setParameter('email', $email)->getResult();
+    }
+
+    public function exists(string $username): bool
+    {
+        return (bool) $this->getEntityManager()->createQuery('
+            SELECT u
+            FROM App\Entity\User u
+            WHERE u.username = :username
+        ')->setParameter('username', $username)->getResult();
+    }
+
+    public function getProfileStats(string $username)
+    {
+        // return $this->getEntityManager()->createQuery('
+        //     SELECT lt.name, COUNT()
+        //     FROM App\Entity\ListType lt
+        //     LEFT JOIN (SELECT * FROM
+
+        //     SELECT list, COUNT(user_id) AS total 
+        //     FROM lists LEFT JOIN (SELECT * FROM users_lists, users WHERE user_id = users.id AND username = ?) ul ON lists.id = ul.list_id 
+        //     GROUP BY list
+        // ')
+
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = 'SELECT lt_name, COUNT(ul_user_id) AS total FROM ms_list_type LEFT JOIN (SELECT * FROM ms_user_list, ms_user WHERE ul_user_id = u_id AND u_username = :username) ul ON lt_id = ul.ul_list_type_id GROUP BY lt_name';
+
+        $stmt = $conn->prepare($sql);
+        $res = $stmt->executeQuery(['username' => $username]);
+        $res = $res->fetchAllAssociative();
+
+        $arr = [];
+
+        foreach($res as $elmt)
+        {
+            $arr[$elmt['lt_name']] = $elmt['total'];
+        }
+
+        return $arr;
+    }
+
     // /**
     //  * @return User[] Returns an array of User objects
     //  */

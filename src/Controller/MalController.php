@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Anime;
+use App\Entity\User;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,10 +20,25 @@ class MalController extends AbstractController
         $currentSeason = 'Summer 2021';
         $currentSeasonAnimes = $animeRepos->getAnimesBySeason($currentSeason);
 
+        $topAnimes = [];
+        $topAnimes['Top Airing Anime']   = $animeRepos->getTopAnimes('a.score', 5, 'a.airing = 1');
+        $topAnimes['Top Upcoming Anime'] = $animeRepos->getTopAnimes('a.members', 5, 'a.status = \'Not yet aired\'');
+        $topAnimes['Most Popular Anime'] = $animeRepos->getTopAnimes('a.members', 10);
+
+        $stats = null;
+
+        if($user = $this->getUser())
+        {
+            $userRepos = $doctrine->getRepository(User::class);
+            $stats = $userRepos->getProfileStats($user->getUsername());
+        }
+
         return $this->render('mal/index.html.twig', [
             'controller_name' => 'MalController',
             'current_season' => $currentSeason,
             'current_season_animes' => $currentSeasonAnimes,
+            'top_animes' => $topAnimes,
+            'stats' => $stats,
         ]);
     }
 

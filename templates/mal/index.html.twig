@@ -49,5 +49,45 @@
                 </div>
             </div>
         </div>
+        <div id="content-right">
+            {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                <div class="info">
+                    <div class="title">My Statistics</div>
+                    <div class="info-content">
+                        {% for key, value in stats %}
+                            <div class="stats">{{ key }}<div>{{ value }}</div></div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            {% for top_title, top_array in top_animes %}
+                <div class="top">
+                    <div class="top-title">{{ top_title }}<a href="#" class="link">More</a></div>
+                    <div class="top-content">
+                    {% for i, anime in top_array %}
+                        {% set top_number = i + 1 %}
+                        {% if anime.episodes %}
+                            {% set episodes = anime.episodes %}
+                        {% else %}
+                            {% set episodes = 0 %}
+                        {% endif %}
+                        <div class="top-anime">
+                            <div class="top-number">{{ top_number }}</div>
+                            <div class="top-cover"><a href="{{ path('anime', { id: anime.id }) }}"><img src="{{ asset('images/anime_covers/'~anime.cover) }}" alt="anime-cover"></a></div>
+                            <div class="top-infos">
+                                <div class="top-anime-title"><a href="{{ path('anime', { id: anime.id }) }}" class="link">{{ anime.title }}</a></div>
+                                <div class="top-others">{{ anime.name~', '~episodes~' eps, scored '~anime.score|number_format(2) }}</div>
+                                <div class="top-members">{{ anime.members|number_format }} members</div>
+                            </div>
+                            <div class="top-list">
+                                <a href="#" class="add link">add</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}

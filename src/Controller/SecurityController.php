@@ -55,27 +55,27 @@ class SecurityController extends AbstractController
 
         if($form->isSubmitted() && $form->isValid())
         {
-            //$repository = $doctrine->getRepository(User::class);
+            $userRepos = $doctrine->getRepository(User::class);
             $user = $form->getData();
 
-            // if($repository->emailExists($user->getEmail()))
-            // {
-            //     $error = 'Email already used';
-            // }
+            if($userRepos->emailExists($user->getEmail()))
+            {
+                $error = 'Email already used';
+            }
 
-            // if($repository->exists($user->getUsername()))
-            // {
-            //     $error = 'Username already used';
-            // }
+            if($userRepos->exists($user->getUsername()))
+            {
+                $error = 'Username already used';
+            }
             
-            // if($error != null)
-            // {
-            //     return $this->render('security/signup.html.twig', [
-            //         'controller_name' => 'SecurityController',
-            //         'form' => $form->createView(),
-            //         'error' => $error,
-            //     ]);
-            // }
+            if($error != null)
+            {
+                return $this->render('security/signup.html.twig', [
+                    'controller_name' => 'SecurityController',
+                    'form' => $form->createView(),
+                    'error' => $error,
+                ]);
+            }
             
             if($user->getPlainPassword() === $user->getPlainPasswordConfirm())
             {

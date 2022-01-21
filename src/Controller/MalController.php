@@ -3,7 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Anime;
+use App\Entity\Genre;
+use App\Entity\ListType;
 use App\Entity\User;
+use App\Entity\UserList;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,8 +71,51 @@ class MalController extends AbstractController
     }
 
     #[Route('/anime/{id}', name: 'anime')]
-    public function anime($id)
+    public function anime(Anime $anime, ManagerRegistry $doctrine) : Response
     {
-        
+        $themes = [];
+
+        foreach($anime->getThemes() as $theme)
+        {
+            $themes[$theme->getType()][] = $theme->getName();
+        }
+
+        $lists = $doctrine->getRepository(ListType::class)->findAll();
+
+        $isAlreadyAdd = false;
+        $selectedKey = 'plan-to-watch';
+        $progressEpisodes = 0;
+        $score = 11;
+
+        if($user = $this->getUser())
+        {
+            $userListRepos = $doctrine->getRepository(UserList::class);
+            $userList = $userListRepos->getListOf($user->getUsername(), $anime->getId())[0];
+
+            if($userList)
+            {
+                $isAlreadyAdd = true;
+                $selectedKey = $userList['lt_list_key'];
+                $progressEpisodes = $userList['ul_progress_episodes'];
+                $score = $userList['ul_score'];
+            }
+        }
+
+        return $this->render('mal/anime.html.twig', [
+            'controller_name' => 'MalController',
+            'anime' => $anime,
+            'themes' => $themes,
+            'lists' => $lists,
+            'is_already_add' => $isAlreadyAdd,
+            'selected_key' => $selectedKey,
+            'progress_episodes' => $progressEpisodes,
+            'score' => $score,
+        ]);
+    }
+
+    #[Route('/genre/{id}', name: 'genre')]
+    public function genre(Genre $genre)
+    {
+
     }
 }

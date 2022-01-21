@@ -1,0 +1,166 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ anime.title }} - MAL{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/anime.css')}}">
+{% endblock %}
+
+{% block javascripts %}
+    <script src="{{ asset('js/anime.js') }}"></script>
+{% endblock %}
+
+{% block headerTitle %}{{ anime.title }}{% endblock %}
+
+{% block headerLink %}
+    <a href="#" class="link"><img src="{{ asset('images/icons/pencil.svg') }}" alt="pencil-icon">Edit</a>
+{% endblock %}
+
+{% block content %}
+    <div id="content-container">
+        <div id="content-left">
+            <div id="cover"><img src="{{ asset('images/anime_covers/'~anime.cover) }}" alt="cover"></div>
+            <div class="info">
+                <div class="title">Information</div>
+                <div class="info-content">
+                    <div><span>Type: </span><a href="#" class="link">{{ anime.type.name }}</a></div>
+                    <div>
+                        <span>Episodes: </span>
+                        {% if anime.episodes %}{{ anime.episodes }}{% else %}Unknown{% endif %}
+                    </div>
+                    <div><span>Status: </span>{{ anime.status }}</div>
+                    <div><span>Aired: </span>{{ anime.aired }}</div>
+                    {% if anime.premiered %}
+                        <div><span>Premiered: </span><a href="{{ path('season', { season: anime.premiered }) }}" class="link">{{ anime.premiered }}</a></div>
+                    {% endif %}
+                    <div id="genres">
+                        <span>Genres: </span>
+                        {% for i, genre in anime.genres %}
+                            <a href="{{ path('genre', { id: genre.id }) }}" class="link">{{ genre.name }}</a>{% if i < anime.genres|length - 1 %}, {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div><span>Duration: </span>{{ anime.duration }}</div>
+                </div>
+            </div>
+        </div>
+        <div id="content-right">
+            <div id="stats">
+                <div id="score">
+                    <div id="score-label">Score</div>
+                    <div id="score-value">
+                        {% if anime.score %}
+                            {{ anime.score|number_format(2) }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="stats-content">
+                    <div id="rank-label">Ranked</div>
+                    <div class="value">
+                        {% if anime.rank %}
+                            #{{ anime.rank }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="stats-content">
+                    <div id="scored-by-label">Scored By</div>
+                    <div class="value"> 
+                        {% if anime.scoredBy %}
+                            {{ anime.scoredBy|number_format }} Users
+                        {% else %}
+                            0 Users
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="stats-content">
+                    <div id="members-label">Members</div>
+                    <div class="value">
+                        {% if anime.members %}
+                            {{ anime.members|number_format }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div id="add-to-list">
+                <input id="anime-id" type="hidden" name="anime_id" value="{{ anime.id }}">
+                <input id="selected-list" type="hidden" name="selected_list" value="{{ selected_key }}">
+                <select name="list-select" id="list-select" class="select {{ selected_key }}" {% if not is_already_add %}style="display: none;"{% endif %}>
+                {% for list in lists %}
+                    <option value="{{ list.id }}" {% if list.listKey == selected_key %} selected="selected" {% endif %} key="{{ list.listKey }}">{{ list.name }}</option>    
+                {% endfor %}
+                </select>
+                <a href="#" id="add" {% if is_already_add %}style="display: none;"{% endif %}>
+                <img src="{{ asset('images/icons/plus-square.svg') }}" alt="plus-icon">Add to List</a>
+                <select name="user-score" id="user-score" class="select" {% if not is_already_add %}disabled="disabled"{% endif %}>
+                    {% set scores = [
+                            '(1) Appalling',
+                            '(2) Horrible',
+                            '(3) Very Bad',
+                            '(4) Bad',
+                            '(5) Average',
+                            '(6) Fine',
+                            '(7) Good',
+                            '(8) Very Good',
+                            '(9) Great',
+                            '(10) Masterpiece',
+                            'Select'
+                        ] %}
+                    {% for i in 10..0 %}
+                        {% set val = i + 1 %}
+                        <option value="{{ val }}" {% if score == val %}selected="selected"{% endif %}>{{ scores[i] }}</option>
+                    {% endfor %}
+                </select>
+                <div id="watch-episodes" {% if not is_already_add %}class="disabled"{% endif %}>
+                    Episodes:
+                    <input type="text" id="number-of-episodes" value="{{ progress_episodes }}" {% if not is_already_add %}disabled="disabled"{% endif %}>/<span id="total-episodes">
+                        {% if anime.episodes %}{{ anime.episodes }}{% else %}?{% endif %}
+                    </span>
+                    <a href="#"><img src="{{ asset('images/icons/plus.svg') }}" alt="plus-icon"></a>
+                </div>
+                <a href="#" id="delete" {% if not is_already_add %}style="display: none;"{% endif %}>Delete From List</a>
+            </div>
+            <div class="info">
+                <div class="title">Synopsis<a href="#" class="link">Edit</a></div>
+                <div class="info-content"><div>{{ anime.synopsis }}</div></div>
+            </div>
+            {% if anime.prequels|length > 0 or anime.sequels|length > 0 %}
+                <div class="info">
+                    <div class="title">Related Anime<a href="#" class="link">Edit</a></div>
+                    <div class="info-content">
+                        {% if anime.prequels|length > 0 %}
+                            <div>Prequel: 
+                                {% for i, prequel in anime.prequels %}
+                                    <a href='{{ path('anime', { id: prequel.id }) }}' class='link'>{{ prequel.title }}</a>{% if i < anime.prequels|length - 1 %}, {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if anime.sequels|length > 0 %}
+                            <div>Sequel: 
+                                {% for i, sequel in anime.sequels %}
+                                    <a href='{{ path('anime', { id: sequel.id }) }}' class='link'>{{ sequel.title }}</a>{% if i < anime.sequels|length - 1 %}, {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+            <div id="themes">
+                {% for type, songs in themes %}
+                    <div class="info">
+                        <div class="title">{{ type }} Theme<a href="#" class="link">Edit</a></div>
+                        <div class="info-content">
+                            {% for song in songs %}
+                                <div>{{ song }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

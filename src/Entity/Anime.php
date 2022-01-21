@@ -71,14 +71,14 @@ class Anime
     #[ORM\InverseJoinColumn(name: 'ag_genre_id', referencedColumnName: 'g_id')]
     private $genres;
 
-    #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'sequel')]
+    #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'sequels')]
     #[ORM\JoinTable(name: 'ms_anime_relation')]
-    #[ORM\JoinColumn(name: 'ar_prequel_id', referencedColumnName: 'a_id')]
-    #[ORM\InverseJoinColumn(name: 'ar_sequel_id', referencedColumnName: 'a_id')]
-    private $prequel;
+    #[ORM\JoinColumn(name: 'ar_sequel_id', referencedColumnName: 'a_id')]
+    #[ORM\InverseJoinColumn(name: 'ar_prequel_id', referencedColumnName: 'a_id')]
+    private $prequels;
 
-    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'prequel')]
-    private $sequel;
+    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'prequels')]
+    private $sequels;
 
     #[ORM\OneToMany(mappedBy: 'anime', targetEntity: Theme::class)]
     private $themes;
@@ -319,23 +319,23 @@ class Anime
     /**
      * @return Collection|self[]
      */
-    public function getPrequel(): Collection
+    public function getPrequels(): Collection
     {
-        return $this->prequel;
+        return $this->prequels;
     }
 
-    public function addPrequel(self $prequel): self
+    public function addPrequel(self $prequels): self
     {
-        if (!$this->prequel->contains($prequel)) {
-            $this->prequel[] = $prequel;
+        if (!$this->prequels->contains($prequels)) {
+            $this->prequels[] = $prequels;
         }
 
         return $this;
     }
 
-    public function removePrequel(self $prequel): self
+    public function removePrequels(self $prequels): self
     {
-        $this->prequel->removeElement($prequel);
+        $this->prequels->removeElement($prequels);
 
         return $this;
     }
@@ -343,25 +343,25 @@ class Anime
     /**
      * @return Collection|self[]
      */
-    public function getSequel(): Collection
+    public function getSequels(): Collection
     {
-        return $this->sequel;
+        return $this->sequels;
     }
 
-    public function addSequel(self $sequel): self
+    public function addSequels(self $sequels): self
     {
-        if (!$this->sequel->contains($sequel)) {
-            $this->sequel[] = $sequel;
-            $sequel->addPrequel($this);
+        if (!$this->sequels->contains($sequels)) {
+            $this->sequels[] = $sequels;
+            $sequels->addPrequel($this);
         }
 
         return $this;
     }
 
-    public function removeSequel(self $sequel): self
+    public function removeSequels(self $sequels): self
     {
-        if ($this->sequel->removeElement($sequel)) {
-            $sequel->removePrequel($this);
+        if ($this->sequel->removeElement($sequels)) {
+            $sequels->removePrequels($this);
         }
 
         return $this;

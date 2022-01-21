@@ -66,9 +66,15 @@ class Anime
     private $type;
 
     #[ORM\ManyToMany(targetEntity: Genre::class, inversedBy: 'animes')]
+    #[ORM\JoinTable(name: 'ms_anime_genre')]
+    #[ORM\JoinColumn(name: 'ag_anime_id', referencedColumnName: 'a_id')]
+    #[ORM\InverseJoinColumn(name: 'ag_genre_id', referencedColumnName: 'g_id')]
     private $genres;
 
     #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'sequel')]
+    #[ORM\JoinTable(name: 'ms_anime_relation')]
+    #[ORM\JoinColumn(name: 'ar_prequel_id', referencedColumnName: 'a_id')]
+    #[ORM\InverseJoinColumn(name: 'ar_sequel_id', referencedColumnName: 'a_id')]
     private $prequel;
 
     #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'prequel')]

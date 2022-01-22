@@ -28,7 +28,7 @@ class UserListRepository extends ServiceEntityRepository
         $stmt = $conn->prepare($sql);
         $res = $stmt->executeQuery(['username' => $username, 'anime' =>  $animeId]);
 
-        return $res->fetchAllAssociative();
+        return $res->fetchAssociative();
     }
 
     // /**

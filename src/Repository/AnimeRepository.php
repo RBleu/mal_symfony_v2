@@ -19,13 +19,33 @@ class AnimeRepository extends ServiceEntityRepository
         parent::__construct($registry, Anime::class);
     }
 
+    public function getAnimesByTitleJS(string $title)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = 'SELECT a_id, a_title, a_aired, a_status, a_score, a_cover FROM ms_anime WHERE a_title LIKE :title LIMIT 10';
+
+        $stmt = $conn->prepare($sql);
+        $res = $stmt->executeQuery(['title' => '%'.$title.'%']);
+
+        return $res->fetchAllAssociative();
+    }
+
+    public function getAnimesByTitle(string $title)
+    {
+        return $this->getEntityManager()->createQuery('
+            SELECT a
+            FROM App\Entity\Anime a
+            WHERE a.title LIKE :title
+        ')->setParameter('title', '%'.$title.'%')->getResult();
+    }
+
     public function getAnimesBySeason(string $season)
     {
 
         return $this->getEntityManager()->createQuery('
             SELECT a
             FROM App\Entity\Anime a
-            INNER JOIN a.type t
             WHERE a.premiered = :premiered
         ')->setParameter('premiered', $season)->getResult();
     }

@@ -57,13 +57,13 @@ $(function() {
 function getResultItem(anime) {
     let resultItem = document.createElement('a');
     resultItem.className = 'result-item';
-    resultItem.href = 'index.php?a=anime&id=' + anime.id;
+    resultItem.href = '/anime/' + anime.a_id;
 
     let resultImage = document.createElement('div');
     resultImage.className = 'result-image';
 
     let img = new Image();
-    img.src = 'public/images/anime_covers/' + anime.cover;
+    img.src = 'images/anime_covers/' + anime.a_cover;
 
     resultImage.appendChild(img);
     resultItem.appendChild(resultImage);
@@ -73,7 +73,7 @@ function getResultItem(anime) {
 
     let resultTitle = document.createElement('div');
     resultTitle.className = 'result-title';
-    resultTitle.innerHTML = anime.title;
+    resultTitle.innerHTML = anime.a_title;
 
     resultRight.appendChild(resultTitle);
 
@@ -81,17 +81,17 @@ function getResultItem(anime) {
     resultInfos.className = 'result-infos';
 
     let aired = document.createElement('div');
-    aired.innerHTML = 'Aired: ' + anime.aired;
+    aired.innerHTML = 'Aired: ' + anime.a_aired;
 
     resultInfos.appendChild(aired);
 
     let score = document.createElement('div');
-    score.innerHTML = 'Score: ' + ((anime.score == null)? 'N/A' : Number.parseFloat(anime.score).toFixed(2));
+    score.innerHTML = 'Score: ' + ((anime.a_score == null)? 'N/A' : Number.parseFloat(anime.a_score).toFixed(2));
 
     resultInfos.appendChild(score);
 
     let status = document.createElement('div');
-    status.innerHTML = 'Status: ' + anime.status;
+    status.innerHTML = 'Status: ' + anime.a_status;
 
     resultInfos.appendChild(status);
 
@@ -105,18 +105,16 @@ function getResultItem(anime) {
 async function getSearchResult(title)
 {
     $.ajax({
-        url: 'index.php',
-        method: 'GET',
+        url: '/search',
+        method: 'POST',
         data: {
-            a: 'search',
             q: title,
-            js: ''
+            js: 'js'
         },
         success: (data) => {
-            let results = JSON.parse(data);
             $('#search-result').html('');
 
-            if(!results || results.length == 0)
+            if(!data || data.length == 0)
             {
                 let nores = document.createElement('div');
                 nores.className = 'no-result';
@@ -126,7 +124,7 @@ async function getSearchResult(title)
             }
             else
             {
-                for(var anime of results)
+                for(var anime of data)
                 {
                     $('#search-result').append(getResultItem(anime));
                 }

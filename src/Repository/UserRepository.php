@@ -112,7 +112,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $stmt = $conn->prepare($sql);
         $res = $stmt->executeQuery(['id' => $id]);
 
-        return $res->fetchAllAssociative();
+        return $res->fetchAssociative();
     }
 
     // /**

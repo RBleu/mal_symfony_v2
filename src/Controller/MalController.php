@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Entity\UserList;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -76,10 +77,32 @@ class MalController extends AbstractController
     }
 
     #[Route('/search', name: "search")]
-    public function search(Request $request)
+    public function search(Request $request, ManagerRegistry $doctrine) : Response
     {
-        $searchTitle = $request->query->get('q');
-        return new Response('Searched title : '.$searchTitle);
+        $title = $request->get('q');
+        $js = $request->get('js');
+
+        $animeRepos = $doctrine->getRepository(Anime::class);
+
+        if($js == 'js')
+        {
+            $animes = $animeRepos->getAnimesByTitleJS($title);
+            return new JsonResponse($animes);
+        }
+        else
+        {
+            $animes = $animeRepos->getAnimesByTitle($title);
+
+            $title = 'Search - MAL';
+            $headerTitle = 'Search';
+            
+            return $this->render('mal/searchBase.html.twig', [
+                'controller_name' => 'MalController',
+                'title' => $title,
+                'header_title' => $headerTitle,
+                'animes' => $animes,
+            ]);
+        }
     }
 
     #[Route('/profile/{username}', name: 'profile')]
@@ -93,7 +116,7 @@ class MalController extends AbstractController
             $stats = $userRepos->getProfileStats($username);
             $totalAnimes = array_sum($stats);
             $history = $userRepos->getProfileHistory($profile['id']);
-            $totalEpisodes = $userRepos->getProfileTotalEpisodes($profile['id'])[0]['total_episodes'];
+            $totalEpisodes = $userRepos->getProfileTotalEpisodes($profile['id'])['total_episodes'];
 
             $lists = $doctrine->getRepository(ListType::class)->findAll();
 
@@ -180,7 +203,6 @@ class MalController extends AbstractController
 
             if($userList)
             {
-                $userList = $userList[0];
                 $isAlreadyAdd = true;
                 $selectedKey = $userList['lt_list_key'];
                 $progressEpisodes = $userList['ul_progress_episodes'];

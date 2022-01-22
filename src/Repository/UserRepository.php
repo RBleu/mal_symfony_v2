@@ -58,7 +58,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     {
         $conn = $this->getEntityManager()->getConnection();
 
-        $sql = 'SELECT lt_name, COUNT(ul_user_id) AS total FROM ms_list_type LEFT JOIN (SELECT * FROM ms_user_list, ms_user WHERE ul_user_id = u_id AND u_username = :username) ul ON lt_id = ul.ul_list_type_id GROUP BY lt_name';
+        $sql = 'SELECT lt_name, COUNT(ul_user_id) AS total 
+                FROM ms_list_type LEFT JOIN (SELECT * FROM ms_user_list, ms_user WHERE ul_user_id = u_id AND u_username = :username) ul ON lt_id = ul.ul_list_type_id 
+                GROUP BY lt_name';
 
         $stmt = $conn->prepare($sql);
         $res = $stmt->executeQuery(['username' => $username]);
@@ -72,6 +74,45 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         }
 
         return $arr;
+    }
+
+    public function getProfileByUsername(string $username)
+    {
+        return $this->getEntityManager()->createQuery('
+            SELECT u.id, u.username, u.image, u.signupDate 
+            FROM App\Entity\User u 
+            WHERE u.username = :username
+        ')->setParameter('username', $username)->getResult();
+    }
+
+    public function getProfileHistory(int $id)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = 'SELECT a_id, a_title, a_episodes, a_cover, ul_progress_episodes, ul_score, ul_modification_date, lt_name 
+                FROM ms_anime, ms_user_list, ms_list_type 
+                WHERE a_id = ul_anime_id AND ul_list_type_id = lt_id AND ul_user_id = :id
+                ORDER BY ul_modification_date DESC
+                LIMIT 3';
+
+        $stmt = $conn->prepare($sql);
+        $res = $stmt->executeQuery(['id' => $id]);
+
+        return $res->fetchAllAssociative();
+    }
+
+    public function getProfileTotalEpisodes(int $id)
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = 'SELECT SUM(a_episodes) AS total_episodes
+                FROM ms_anime, ms_user_list, ms_list_type
+                WHERE a_id = ul_anime_id AND ul_list_type_id = lt_id AND lt_name = "Completed" AND ul_user_id = :id';
+
+        $stmt = $conn->prepare($sql);
+        $res = $stmt->executeQuery(['id' => $id]);
+
+        return $res->fetchAllAssociative();
     }
 
     // /**

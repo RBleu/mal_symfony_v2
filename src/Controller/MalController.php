@@ -59,9 +59,51 @@ class MalController extends AbstractController
     }
 
     #[Route('/profile/{username}', name: 'profile')]
-    public function profile(string $username)
+    public function profile(string $username, ManagerRegistry $doctrine) : Response
     {
-        return null;
+        $userRepos = $doctrine->getRepository(User::class);
+
+        if($userRepos->exists($username))
+        {
+            $profile = $userRepos->getProfileByUsername($username)[0];
+            $stats = $userRepos->getProfileStats($username);
+            $totalAnimes = array_sum($stats);
+            $history = $userRepos->getProfileHistory($profile['id']);
+            $totalEpisodes = $userRepos->getProfileTotalEpisodes($profile['id'])[0]['total_episodes'];
+
+            $lists = $doctrine->getRepository(ListType::class)->findAll();
+
+            $statsGraphWidth = 380;
+            $statsGraphDivs = '';
+            $statsGraphDetail = '';
+
+            foreach($lists as $value)
+            {
+                $list = $value->getName();
+                $listEntries = $stats[$list];
+                $className = $value->getListKey();
+
+                $statsGraphDivWidth = ($totalAnimes == 0)? 0 : round(($listEntries/$totalAnimes) * $statsGraphWidth);
+
+                $statsGraphDivs .= '<div class=\''.$className.'\' style=\'width: '.$statsGraphDivWidth.'px\'></div>';
+                $statsGraphDetail .= '<div><div class=\'circle '.$className.'\'></div><a href=\'#\' class=\'link\'>'.$list.'</a><div class=\'value\'>'.$listEntries.'</div></div>';
+            }
+
+            return $this->render('mal/profile.html.twig', [
+                'controller_name' => 'MalController',
+                'profile' => $profile,
+                'stats' => $stats,
+                'total_animes' => $totalAnimes,
+                'history' => $history,
+                'total_episodes' => $totalEpisodes,
+                'stats_graph_divs' => $statsGraphDivs,
+                'stats_graph_detail' => $statsGraphDetail,
+            ]);
+        }
+        else
+        {
+            // DO SOMETHING
+        }
     }
 
     #[Route('/season/{season}', name: 'season')]
@@ -90,10 +132,11 @@ class MalController extends AbstractController
         if($user = $this->getUser())
         {
             $userListRepos = $doctrine->getRepository(UserList::class);
-            $userList = $userListRepos->getListOf($user->getUsername(), $anime->getId())[0];
+            $userList = $userListRepos->getListOf($user->getUsername(), $anime->getId());
 
             if($userList)
             {
+                $userList = $userList[0];
                 $isAlreadyAdd = true;
                 $selectedKey = $userList['lt_list_key'];
                 $progressEpisodes = $userList['ul_progress_episodes'];

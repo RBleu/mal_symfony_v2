@@ -1,0 +1,137 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ profile.username }}'s Profile - MAL{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/profile.css')}}">
+{% endblock %}
+
+{% block headerTitle %}{{ profile.username }}'s Profile{% endblock %}
+
+{% block headerLink %}
+    <a href="#" class="link"><img src="{{ asset('images/icons/cog.svg') }}" alt="cog-icon">Edit Profile</a>
+{% endblock %}
+
+{% block content %}
+    <div id="content-container">
+        <div id="content-left">
+            <div id="cover"><img src="{{ asset('images/profile_images/'~profile.image) }}" alt="profile-image"></div>
+            <div id="joined"><span>Joined</span> <div>{{ profile.signupDate|date("M d, Y") }}</div></div>
+            <div>
+                <a href="{{ path('animelist', { username: profile.username }) }}" class="btn">Anime List</a>
+            </div>
+        </div>
+
+        <div id="content-right">
+            <div id="stats" class="info">
+                <div class="title">Statistics</div>
+                <div class="info-content">
+                    <div class="info">
+                        <div class="title">Anime Stats</div>
+                        <div class="info-content">
+                            <div id="stats-graph">{{ stats_graph_divs|raw }}</div>
+                            <div id="stats-detail">
+                                <div id="stats-detail-left">{{ stats_graph_detail|raw }}</div>
+                                <div id="stats-detail-right">
+                                    <div>Total Entries<div class="value">{{ total_animes }}</div></div>
+                                    <div>Episodes<div class="value">{{ total_episodes }}</div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="last-anime-updates" class="info">
+                        <div class="title">Last Anime Updates<a href="#" class="link">Anime History</a></div>
+                        <div class="info-content">
+                            {% set progress_width = 194 %}
+                            {% for ah in history %}
+                                {% set anime_progress_width = ((ah.ul_progress_episodes/ah.a_episodes)*progress_width)|round %}
+                                <div class="updated-anime">
+                                    <div class="updated-anime-cover"><a href="{{ path('anime', { id: ah.a_id }) }}"><img src="{{ asset('images/anime_covers/'~ah.a_cover) }}" alt="anime-cover"></a></div>
+                                    <div class="updated-anime-infos">
+                                        <div class="updated-anime-title"><a href="{{ path('anime', { id: ah.a_id }) }}" class="link">{{ ah.a_title }}</a></div>
+                                        <div class="updated-anime-progress"><div style="width: {{ anime_progress_width }}px"></div></div>
+                                        <div class="updated-anime-score">{{ ah.lt_name }} · Scored {% if ah.ul_score == 11 %}-{% else %}{{ ah.ul_score }}{% endif %}</div>
+                                    </div>
+                                    <div class="modification-date">{{ ah.ul_modification_date|date("M d, Y h:i A") }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {# <div id="content-container">
+        <div id="content-left">
+            <div id="cover"><img src="public/images/profile_images/<?= $profile['image'] ?>" alt="profile-image"></div>
+            <div id="joined"><span>Joined</span> <div><?= formatDate('M d, Y', $profile['signup_date']); ?></div></div>
+            <div>
+                <a href="index.php?a=animelist&username=<?= $username ?>" class="btn">Anime List</a>
+            </div>
+        </div>
+
+        <div id="content-right">
+            <div id="stats" class="info">
+                <div class="title">Statistics</div>
+                <div class="info-content">
+                    <div class="info">
+                        <?php
+                            $statsGraphWidth = 380;
+                            $statsGraphDivs = '';
+                            $statsGraphDetail = '';
+
+                            foreach($lists as $value)
+                            {
+                                $list = $value['list'];
+                                $listEntries = $stats[$list];
+                                $className = $value['list_key'];
+
+                                $statsGraphDivWidth = ($totalAnimes == 0)? 0 : round(($listEntries/$totalAnimes) * $statsGraphWidth);
+
+                                $statsGraphDivs .= '<div class=\''.$className.'\' style=\'width: '.$statsGraphDivWidth.'px\'></div>';
+                                $statsGraphDetail .= '<div><div class=\'circle '.$className.'\'></div><a href=\'#\' class=\'link\'>'.$list.'</a><div class=\'value\'>'.$listEntries.'</div></div>';
+                            }
+                        ?>
+                        <div class="title">Anime Stats</div>
+                        <div class="info-content">
+                            <div id="stats-graph"><?= $statsGraphDivs ?></div>
+                            <div id="stats-detail">
+                                <div id="stats-detail-left"><?= $statsGraphDetail ?></div>
+                                <div id="stats-detail-right">
+                                    <div>Total Entries<div class="value"><?= $totalAnimes ?></div></div>
+                                    <div>Episodes<div class="value"><?= $totalEpisodes ?></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="last-anime-updates" class="info">
+                        <div class="title">Last Anime Updates<a href="#" class="link">Anime History</a></div>
+                        <div class="info-content">
+                            <?php
+                                $progressWidth = 194;
+
+                                foreach($history as $ah)
+                                {
+                                    $animeProgressWidth = round(($ah['progress_episodes']/$ah['episodes']) * $progressWidth);
+                                    ?>
+                                        <div class="updated-anime">
+                                            <div class="updated-anime-cover"><a href="index.php?a=anime&id=<?= $ah['id'] ?>"><img src="public/images/anime_covers/<?= $ah['cover'] ?>" alt="anime-cover"></a></div>
+                                            <div class="updated-anime-infos">
+                                                <div class="updated-anime-title"><a href="index.php?a=anime&id=<?= $ah['id'] ?>" class="link"><?= $ah['title'] ?></a></div>
+                                                <div class="updated-anime-progress"><div style="width: <?= $animeProgressWidth ?>px"></div></div>
+                                                <div class="updated-anime-score"><?= $ah['list'] ?> · <?= 'Scored '.(($ah['score'] == 11)? '-' : $ah['score']) ?></div>
+                                            </div>
+                                            <div class="modification-date"><?= formatDate('M d, Y h:i A', $ah['modification_date']) ?></div>
+                                        </div>
+                                    <?php
+                                }
+                            ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> #}
+{% endblock %}

@@ -23,7 +23,7 @@ class AnimeRepository extends ServiceEntityRepository
     {
 
         return $this->getEntityManager()->createQuery('
-            SELECT a.id, a.title, a.cover, a.airedFrom, a.synopsis, t.name, a.score, a.members, a.episodes 
+            SELECT a
             FROM App\Entity\Anime a
             INNER JOIN a.type t
             WHERE a.premiered = :premiered

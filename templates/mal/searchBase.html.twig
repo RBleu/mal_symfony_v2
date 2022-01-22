@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block headerTitle %}{{ header_title }}{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/search.css')}}">
+{% endblock %}
+
+{% block content %}
+    <div id="results-wrapper">
+        {% for anime in animes %}
+            <div class="anime-result">
+                <div class="anime-title"><a class="link" href="{{ path('anime', { id: anime.id }) }}">{{ anime.title }}</a></div>
+                <div class="anime-episodes">{{ anime.episodes }} eps</div>
+                <div class="anime-genres">
+                    {% for genre in anime.genres %}
+                        <div class="anime-genre"><a href="{{ path('genre', { id: genre.id }) }}">{{ genre.name }}</a></div>
+                    {% endfor %}
+                </div>
+                <div class="anime-cover-synopsis">
+                    <div class="anime-cover"><a href="{{ path('anime', { id: anime.id }) }}"><img src="{{ asset('images/anime_covers/'~anime.cover) }}" alt="anime-cover"></a></div>
+                    <div class="anime-synopsis">{{ anime.synopsis }}</div>
+                </div>
+                <div class="anime-infos">
+                    <div class="anime-infos-left">{{ anime.type.name }} - {{ anime.airedFrom|date("M j, Y") }}</div>
+                    <div class="anime-infos-right">
+                        <div>{{ anime.score|number_format(2) }}</div>
+                        <div>{{ anime.members|number_format }}</div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

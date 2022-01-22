@@ -1,0 +1,27 @@
+{% extends 'mal/searchBase.html.twig' %}
+
+{% block title %}{{ season }} - MAL{% endblock %}
+
+{% block headerTitle %}{{ season }}{% endblock %}
+
+{% block content %}
+    <div id="anime-results-header">
+        <div class="season-nav"><a href="{{ path('season', { season: seasons[0] }) }}">...</a></div>
+        {% for i,season in seasons %}
+            <div class="season-nav"><a {% if i == 1 %}class="selected"{% endif %} href="{{ path('season', { season: season }) }}">{{ season }}</a></div>
+        {% endfor %}
+        <div class="season-nav"><a href="{{ path('season', { season: current_season }) }}">Current</a></div>
+        <form id="jump-form" action="{{ path('jump') }}" method="post">
+            <div>Jump to</div>
+            <select class="jump-input" name="season-select" id="season-select">
+                <option value="winter">Winter</option>
+                <option value="spring">Spring</option>
+                <option value="summer">Summer</option>
+                <option value="fall">Fall</option>
+            </select>
+            <input class="jump-input" type="text" name="year" id="year" size="4" placeholder="Year">
+            <input id="go" type="submit" value="Go">
+        </form>
+    </div>
+    {{ parent() }}
+{% endblock %}

@@ -15,6 +15,30 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class MalController extends AbstractController
 {
+    protected function getPrevNextSeasons($season)
+    {
+        $seasons = ['Winter', 'Spring', 'Summer', 'Fall'];
+    
+        $split = explode(' ', $season);
+    
+        $iCurrent = array_search($split[0], $seasons);
+        $currentYear = (int)$split[1];
+    
+        $iPrev = $iCurrent - 1;
+        $prevYear = ($iPrev < 0)? $currentYear - 1 : $currentYear;
+        $prevSeason = $seasons[(4 + $iPrev)%4].' '.$prevYear;
+    
+        $iNext = $iCurrent + 1;
+        $nextYear = ($iNext > 3)? $currentYear + 1 : $currentYear;
+        $nextSeason = $seasons[$iNext%4].' '.$nextYear;
+    
+        $iNextNext = $iNext + 1;
+        $nextNextYear = ($iNextNext > 3)? $currentYear + 1 : $currentYear;
+        $nextNextSeason = $seasons[$iNextNext%4].' '.$nextNextYear;
+    
+        return [$prevSeason, $season, $nextSeason, $nextNextSeason];
+    }    
+
     #[Route('/', name: 'index')]
     public function index(ManagerRegistry $doctrine): Response
     {
@@ -107,9 +131,29 @@ class MalController extends AbstractController
     }
 
     #[Route('/season/{season}', name: 'season')]
-    public function season($season)
+    public function season(string $season, ManagerRegistry $doctrine) : Response
     {
+        $currentSeason = 'Summer 2021';
 
+        if(!preg_match('/(Winter|Spring|Summer|Fall) [0-9]{4}/', $season))
+        {
+            return $this->redirectToRoute('season', [
+                'season' => $currentSeason,
+            ]);
+        }
+
+        $animeRepos = $doctrine->getRepository(Anime::class);
+
+        $animes = $animeRepos->getAnimesBySeason($season);
+        $seasons = $this->getPrevNextSeasons($season);
+
+        return $this->render('mal/season.html.twig', [
+            'controller_name' => 'MalController',
+            'animes' => $animes,
+            'seasons' => $seasons,
+            'current_season' => $currentSeason,
+            'season' => $season,
+        ]);
     }
 
     #[Route('/anime/{id}', name: 'anime')]
@@ -157,8 +201,29 @@ class MalController extends AbstractController
     }
 
     #[Route('/genre/{id}', name: 'genre')]
-    public function genre(Genre $genre)
+    public function genre(Genre $genre) : Response
     {
+        $title = $genre->getName().' - MAL';
+        $headerTitle = $genre->getName().' Anime';
 
+        $animes = $genre->getAnimes();
+
+        return $this->render('mal/searchBase.html.twig', [
+            'controller_name' => 'MalController',
+            'title' => $title,
+            'header_title' => $headerTitle,
+            'animes' => $animes,
+        ]);
+    }
+
+    #[Route('/jump', name: 'jump')]
+    public function jump(Request $request) : Response
+    {
+        $season = ucfirst($request->get('season-select'));
+        $year = $request->get('year');
+
+        return $this->redirectToRoute('season', [
+            'season' => $season.' '.$year,
+        ]);
     }
 }

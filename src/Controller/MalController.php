@@ -71,9 +71,29 @@ class MalController extends AbstractController
     }
 
     #[Route('/animelist/{username}', name: 'animelist')]
-    public function animelist(string $username) : Response
+    public function animelist(string $username, ManagerRegistry $doctrine, Request $request) : Response
     {
-        return new Response('Hello '.$username);
+        $userRepos = $doctrine->getRepository(User::class);
+
+        if($user = $userRepos->findOneBy(['username' => $username]))
+        {
+            $list = $request->get('list') ?: '5';
+            
+            $animelist = $doctrine->getRepository(UserList::class)->findBy(['user' => $user->getId(), 'listType' => $list]);
+            $lists = $doctrine->getRepository(ListType::class)->findAll();
+
+            return $this->render('mal/animelist.html.twig', [
+                'controller_name' => 'MalController',
+                'animelist' => $animelist,
+                'lists' => $lists,
+                'username' => $user->getUsername(),
+                'list_id' => $list,
+            ]);
+        }
+        else
+        {
+            // DO SOMETHING
+        }
     }
 
     #[Route('/search', name: "search")]

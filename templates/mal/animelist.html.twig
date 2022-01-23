@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ username }}'s Anime List - MAL</title>
+
+    <link rel="stylesheet" href="{{ asset('DataTables/datatables.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/animelist.css') }}">
+
+    <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ asset('DataTables/datatables.min.js') }}"></script>
+    <script src="{{ asset('js/animelist.js') }}"></script>
+</head>
+<body>
+    <div id="mal">
+        <div id="header">
+            <div id="logo">
+                <a href="{{ path('index') }}"><img src="{{ asset('images/logo.png') }}" alt="logo"></a>
+            </div>
+        </div>
+        <div id="mal-content">
+            <div id="cover">
+                <div id="cover-img"></div>
+            </div>
+            <div id="navbar">
+                {% for list in lists %}
+                    <a href="{{ path('animelist', { username: username, list: list.id }) }}" {% if list.id == list_id %}class="selected"{% endif %}>{{ list.name }}</a>
+                {% endfor %}
+            </div>
+            <div id="table-wrapper">
+                <table id="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Image</th>
+                            <th>Anime Title</th>
+                            <th>Progress</th>
+                            <th>Premiered</th>
+                            <th>Air Start</th>
+                            <th>Air End</th>
+                            <th>Priority</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in animelist %}
+                            <tr>
+                                <td></td>
+                                <td><a href="{{ path('anime', { id: row.anime.id }) }}"><img height="70" width="50" src="{{ asset('images/anime_covers/'~row.anime.cover) }}" alt=""></a></td>
+                                <td><a href="{{ path('anime', { id: row.anime.id }) }}" class="link">{{ row.anime.title }}</a></td>
+                                <td>
+                                    <div class="watch-episodes">
+                                        <input type="text" class="number-of-episodes" value="{{ row.progressEpisodes }}">/<span class="total-episodes">{% if row.anime.episodes %}{{ row.anime.episodes }}{% else %}-{% endif %}</span>
+                                        <a href="#"><img src="{{ asset('images/icons/plus.svg') }}" alt="plus-icon"></a>
+                                    </div>
+                                </td>
+                                <td><a href="{% if row.anime.premiered %}{{ path('season', { season: row.anime.premiered }) }}{% else %}#{% endif %}" class="link">{{ row.anime.premiered }}</a></td>
+                                <td>{{ row.anime.airedFrom|date('d-m-y') }}</td>
+                                <td>{{ row.anime.airedTo|date('d-m-y') }}</td>
+                                <td>{{ row.priority.name }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

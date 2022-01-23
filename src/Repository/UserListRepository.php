@@ -19,18 +19,6 @@ class UserListRepository extends ServiceEntityRepository
         parent::__construct($registry, UserList::class);
     }
 
-    public function getListOf(string $username, int $animeId)
-    {
-        $conn = $this->getEntityManager()->getConnection();
-
-        $sql = 'SELECT lt_list_key, ul_progress_episodes, ul_score FROM ms_user, ms_user_list, ms_list_type WHERE u_username = :username AND u_id = ul_user_id AND lt_id = ul_list_type_id AND ul_anime_id = :anime';
-        
-        $stmt = $conn->prepare($sql);
-        $res = $stmt->executeQuery(['username' => $username, 'anime' =>  $animeId]);
-
-        return $res->fetchAssociative();
-    }
-
     // /**
     //  * @return UserList[] Returns an array of UserList objects
     //  */

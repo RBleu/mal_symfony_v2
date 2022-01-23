@@ -58,12 +58,12 @@ class SecurityController extends AbstractController
             $userRepos = $doctrine->getRepository(User::class);
             $user = $form->getData();
 
-            if($userRepos->emailExists($user->getEmail()))
+            if($userRepos->findOneBy(['email' => $user->getEmail()]))
             {
                 $error = 'Email already used';
             }
 
-            if($userRepos->exists($user->getUsername()))
+            if($userRepos->findOneBy(['username' => $user->getUsername()]))
             {
                 $error = 'Username already used';
             }

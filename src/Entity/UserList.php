@@ -20,7 +20,7 @@ class UserList
     private $anime;
 
     #[ORM\ManyToOne(targetEntity: ListType::class, inversedBy: 'userLists')]
-    #[ORM\JoinColumn(nullable: false, name: 'ul_list_type', referencedColumnName: 'lt_id')]
+    #[ORM\JoinColumn(nullable: false, name: 'ul_list_type_id', referencedColumnName: 'lt_id')]
     private $listType;
 
     #[ORM\Column(type: 'integer', name: 'ul_score')]

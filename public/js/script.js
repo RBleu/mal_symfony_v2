@@ -57,13 +57,13 @@ $(function() {
 function getResultItem(anime) {
     let resultItem = document.createElement('a');
     resultItem.className = 'result-item';
-    resultItem.href = '/anime/' + anime.a_id;
+    resultItem.href = '/anime/' + anime.id;
 
     let resultImage = document.createElement('div');
     resultImage.className = 'result-image';
 
     let img = new Image();
-    img.src = 'images/anime_covers/' + anime.a_cover;
+    img.src = 'images/anime_covers/' + anime.cover;
 
     resultImage.appendChild(img);
     resultItem.appendChild(resultImage);
@@ -73,7 +73,7 @@ function getResultItem(anime) {
 
     let resultTitle = document.createElement('div');
     resultTitle.className = 'result-title';
-    resultTitle.innerHTML = anime.a_title;
+    resultTitle.innerHTML = anime.title;
 
     resultRight.appendChild(resultTitle);
 
@@ -81,17 +81,17 @@ function getResultItem(anime) {
     resultInfos.className = 'result-infos';
 
     let aired = document.createElement('div');
-    aired.innerHTML = 'Aired: ' + anime.a_aired;
+    aired.innerHTML = 'Aired: ' + anime.aired;
 
     resultInfos.appendChild(aired);
 
     let score = document.createElement('div');
-    score.innerHTML = 'Score: ' + ((anime.a_score == null)? 'N/A' : Number.parseFloat(anime.a_score).toFixed(2));
+    score.innerHTML = 'Score: ' + ((anime.score == null)? 'N/A' : Number.parseFloat(anime.score).toFixed(2));
 
     resultInfos.appendChild(score);
 
     let status = document.createElement('div');
-    status.innerHTML = 'Status: ' + anime.a_status;
+    status.innerHTML = 'Status: ' + anime.status;
 
     resultInfos.appendChild(status);
 

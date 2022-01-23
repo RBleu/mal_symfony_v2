@@ -36,69 +36,29 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->_em->flush();
     }
 
-    public function emailExists(string $email): bool
-    {
-        return (bool) $this->getEntityManager()->createQuery('
-            SELECT u
-            FROM App\Entity\User u
-            WHERE u.email = :email
-        ')->setParameter('email', $email)->getResult();
-    }
-
-    public function exists(string $username): bool
-    {
-        return (bool) $this->getEntityManager()->createQuery('
-            SELECT u
-            FROM App\Entity\User u
-            WHERE u.username = :username
-        ')->setParameter('username', $username)->getResult();
-    }
-
-    public function getProfileStats(string $username)
+    public function getProfileStats(int $id)
     {
         $conn = $this->getEntityManager()->getConnection();
 
         $sql = 'SELECT lt_name, COUNT(ul_user_id) AS total 
-                FROM ms_list_type LEFT JOIN (SELECT * FROM ms_user_list, ms_user WHERE ul_user_id = u_id AND u_username = :username) ul ON lt_id = ul.ul_list_type_id 
+                FROM ms_list_type LEFT JOIN 
+                    (SELECT * FROM ms_user_list WHERE ul_user_id = :id) ul 
+                ON lt_id = ul_list_type_id 
                 GROUP BY lt_name';
 
         $stmt = $conn->prepare($sql);
-        $res = $stmt->executeQuery(['username' => $username]);
+        
+        $res = $stmt->executeQuery(['id' => $id]);
         $res = $res->fetchAllAssociative();
 
-        $arr = [];
+        $stats = [];
 
-        foreach($res as $elmt)
+        foreach($res as $val)
         {
-            $arr[$elmt['lt_name']] = $elmt['total'];
+            $stats[$val['lt_name']] = $val['total'];
         }
 
-        return $arr;
-    }
-
-    public function getProfileByUsername(string $username)
-    {
-        return $this->getEntityManager()->createQuery('
-            SELECT u.id, u.username, u.image, u.signupDate 
-            FROM App\Entity\User u 
-            WHERE u.username = :username
-        ')->setParameter('username', $username)->getResult();
-    }
-
-    public function getProfileHistory(int $id)
-    {
-        $conn = $this->getEntityManager()->getConnection();
-
-        $sql = 'SELECT a_id, a_title, a_episodes, a_cover, ul_progress_episodes, ul_score, ul_modification_date, lt_name 
-                FROM ms_anime, ms_user_list, ms_list_type 
-                WHERE a_id = ul_anime_id AND ul_list_type_id = lt_id AND ul_user_id = :id
-                ORDER BY ul_modification_date DESC
-                LIMIT 3';
-
-        $stmt = $conn->prepare($sql);
-        $res = $stmt->executeQuery(['id' => $id]);
-
-        return $res->fetchAllAssociative();
+        return $stats;
     }
 
     public function getProfileTotalEpisodes(int $id)
@@ -112,7 +72,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $stmt = $conn->prepare($sql);
         $res = $stmt->executeQuery(['id' => $id]);
 
-        return $res->fetchAssociative();
+        return $res->fetchAssociative()['total_episodes'];
     }
 
     // /**

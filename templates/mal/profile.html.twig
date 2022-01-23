@@ -44,16 +44,16 @@
                         <div class="title">Last Anime Updates<a href="#" class="link">Anime History</a></div>
                         <div class="info-content">
                             {% set progress_width = 194 %}
-                            {% for ah in history %}
-                                {% set anime_progress_width = ((ah.ul_progress_episodes/ah.a_episodes)*progress_width)|round %}
+                            {% for ul in history %}
+                                {% set anime_progress_width = ((ul.progressEpisodes/ul.anime.episodes)*progress_width)|round %}
                                 <div class="updated-anime">
-                                    <div class="updated-anime-cover"><a href="{{ path('anime', { id: ah.a_id }) }}"><img src="{{ asset('images/anime_covers/'~ah.a_cover) }}" alt="anime-cover"></a></div>
+                                    <div class="updated-anime-cover"><a href="{{ path('anime', { id: ul.anime.id }) }}"><img src="{{ asset('images/anime_covers/'~ul.anime.cover) }}" alt="anime-cover"></a></div>
                                     <div class="updated-anime-infos">
-                                        <div class="updated-anime-title"><a href="{{ path('anime', { id: ah.a_id }) }}" class="link">{{ ah.a_title }}</a></div>
+                                        <div class="updated-anime-title"><a href="{{ path('anime', { id: ul.anime.id }) }}" class="link">{{ ul.anime.title }}</a></div>
                                         <div class="updated-anime-progress"><div style="width: {{ anime_progress_width }}px"></div></div>
-                                        <div class="updated-anime-score">{{ ah.lt_name }} · Scored {% if ah.ul_score == 11 %}-{% else %}{{ ah.ul_score }}{% endif %}</div>
+                                        <div class="updated-anime-score">{{ ul.listType.name }} · Scored {% if ul.score == 11 %}-{% else %}{{ ul.score }}{% endif %}</div>
                                     </div>
-                                    <div class="modification-date">{{ ah.ul_modification_date|date("M d, Y h:i A") }}</div>
+                                    <div class="modification-date">{{ ul.modificationDate|date("M d, Y h:i A") }}</div>
                                 </div>
                             {% endfor %}
                         </div>

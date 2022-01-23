@@ -88,10 +88,10 @@
             </div>
             <div id="add-to-list">
                 <input id="anime-id" type="hidden" name="anime_id" value="{{ anime.id }}">
-                <input id="selected-list" type="hidden" name="selected_list" value="{{ selected_key }}">
-                <select name="list-select" id="list-select" class="select {{ selected_key }}" {% if not is_already_add %}style="display: none;"{% endif %}>
+                <input id="selected-list" type="hidden" name="selected_list" value="{{ user_list.listType.listKey }}">
+                <select name="list-select" id="list-select" class="select {{ user_list.listType.listKey }}" {% if not is_already_add %}style="display: none;"{% endif %}>
                 {% for list in lists %}
-                    <option value="{{ list.id }}" {% if list.listKey == selected_key %} selected="selected" {% endif %} key="{{ list.listKey }}">{{ list.name }}</option>    
+                    <option value="{{ list.id }}" {% if list.listKey == user_list.listType.listKey %} selected="selected" {% endif %} key="{{ list.listKey }}">{{ list.name }}</option>    
                 {% endfor %}
                 </select>
                 <a href="#" id="add" {% if is_already_add %}style="display: none;"{% endif %}>
@@ -112,12 +112,12 @@
                         ] %}
                     {% for i in 10..0 %}
                         {% set val = i + 1 %}
-                        <option value="{{ val }}" {% if score == val %}selected="selected"{% endif %}>{{ scores[i] }}</option>
+                        <option value="{{ val }}" {% if user_list.score == val %}selected="selected"{% endif %}>{{ scores[i] }}</option>
                     {% endfor %}
                 </select>
                 <div id="watch-episodes" {% if not is_already_add %}class="disabled"{% endif %}>
                     Episodes:
-                    <input type="text" id="number-of-episodes" value="{{ progress_episodes }}" {% if not is_already_add %}disabled="disabled"{% endif %}>/<span id="total-episodes">
+                    <input type="text" id="number-of-episodes" value="{{ user_list.progressEpisodes }}" {% if not is_already_add %}disabled="disabled"{% endif %}>/<span id="total-episodes">
                         {% if anime.episodes %}{{ anime.episodes }}{% else %}?{% endif %}
                     </span>
                     <a href="#"><img src="{{ asset('images/icons/plus.svg') }}" alt="plus-icon"></a>

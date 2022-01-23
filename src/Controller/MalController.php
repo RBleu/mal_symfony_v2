@@ -46,19 +46,19 @@ class MalController extends AbstractController
         $animeRepos = $doctrine->getRepository(Anime::class);
 
         $currentSeason = 'Summer 2021';
-        $currentSeasonAnimes = $animeRepos->getAnimesBySeason($currentSeason);
+        $currentSeasonAnimes = $animeRepos->findBy(['premiered' => $currentSeason]);
 
         $topAnimes = [];
-        $topAnimes['Top Airing Anime']   = $animeRepos->getTopAnimes('a.score', 5, 'a.airing = 1');
-        $topAnimes['Top Upcoming Anime'] = $animeRepos->getTopAnimes('a.members', 5, 'a.status = \'Not yet aired\'');
-        $topAnimes['Most Popular Anime'] = $animeRepos->getTopAnimes('a.members', 10);
+        $topAnimes['Top Airing Anime']   = $animeRepos->findBy(['airing' => 1], ['score' => 'DESC'], 5);
+        $topAnimes['Top Upcoming Anime'] = $animeRepos->findBy(['status' => 'Not yet aired'], ['members' => 'DESC'], 5);
+        $topAnimes['Most Popular Anime'] = $animeRepos->findBy(array(), ['members' => 'DESC'], 10);
 
         $stats = null;
 
         if($user = $this->getUser())
         {
             $userRepos = $doctrine->getRepository(User::class);
-            $stats = $userRepos->getProfileStats($user->getUsername());
+            $stats = $userRepos->getProfileStats($user->getId());
         }
 
         return $this->render('mal/index.html.twig', [
@@ -86,7 +86,7 @@ class MalController extends AbstractController
 
         if($js == 'js')
         {
-            $animes = $animeRepos->getAnimesByTitleJS($title);
+            $animes = $animeRepos->getAnimesByTitle($title, 10);
             return new JsonResponse($animes);
         }
         else
@@ -110,13 +110,12 @@ class MalController extends AbstractController
     {
         $userRepos = $doctrine->getRepository(User::class);
 
-        if($userRepos->exists($username))
+        if($user = $userRepos->findOneBy(['username' => $username]))
         {
-            $profile = $userRepos->getProfileByUsername($username)[0];
-            $stats = $userRepos->getProfileStats($username);
+            $stats = $userRepos->getProfileStats($user->getId());
             $totalAnimes = array_sum($stats);
-            $history = $userRepos->getProfileHistory($profile['id']);
-            $totalEpisodes = $userRepos->getProfileTotalEpisodes($profile['id'])['total_episodes'];
+            $history = $doctrine->getRepository(UserList::class)->findBy(['user' => $user->getId()], ['modificationDate' => 'DESC'], 3);
+            $totalEpisodes = $userRepos->getProfileTotalEpisodes($user->getId());
 
             $lists = $doctrine->getRepository(ListType::class)->findAll();
 
@@ -138,7 +137,7 @@ class MalController extends AbstractController
 
             return $this->render('mal/profile.html.twig', [
                 'controller_name' => 'MalController',
-                'profile' => $profile,
+                'profile' => $user,
                 'stats' => $stats,
                 'total_animes' => $totalAnimes,
                 'history' => $history,
@@ -167,7 +166,7 @@ class MalController extends AbstractController
 
         $animeRepos = $doctrine->getRepository(Anime::class);
 
-        $animes = $animeRepos->getAnimesBySeason($season);
+        $animes = $animeRepos->findBy(['premiered' => $season]);
         $seasons = $this->getPrevNextSeasons($season);
 
         return $this->render('mal/season.html.twig', [
@@ -191,23 +190,19 @@ class MalController extends AbstractController
 
         $lists = $doctrine->getRepository(ListType::class)->findAll();
 
-        $isAlreadyAdd = false;
-        $selectedKey = 'plan-to-watch';
-        $progressEpisodes = 0;
-        $score = 11;
-
         if($user = $this->getUser())
         {
             $userListRepos = $doctrine->getRepository(UserList::class);
-            $userList = $userListRepos->getListOf($user->getUsername(), $anime->getId());
-
-            if($userList)
-            {
-                $isAlreadyAdd = true;
-                $selectedKey = $userList['lt_list_key'];
-                $progressEpisodes = $userList['ul_progress_episodes'];
-                $score = $userList['ul_score'];
-            }
+            $userList = $userListRepos->findOneBy(['user' => $user->getId(), 'anime' => $anime->getId()]);
+            $isAlreadyAdd = (bool) $userList;
+        }
+        else
+        {
+            $isAlreadyAdd = false;
+            $userList = new UserList();
+            $userList->setProgressEpisodes(0);
+            $userList->setScore(11);
+            $userList->setListType((new ListType())->setListKey('plan-to-watch'));
         }
 
         return $this->render('mal/anime.html.twig', [
@@ -216,9 +211,7 @@ class MalController extends AbstractController
             'themes' => $themes,
             'lists' => $lists,
             'is_already_add' => $isAlreadyAdd,
-            'selected_key' => $selectedKey,
-            'progress_episodes' => $progressEpisodes,
-            'score' => $score,
+            'user_list' => $userList,
         ]);
     }
 
@@ -247,5 +240,15 @@ class MalController extends AbstractController
         return $this->redirectToRoute('season', [
             'season' => $season.' '.$year,
         ]);
+    }
+
+    #[Route('/test', name: 'test')]
+    public function test(ManagerRegistry $doctrine)
+    {
+        $repos = $doctrine->getRepository(Anime::class);
+
+        $res = $repos->getAnimesByTitle('fate', 10);
+
+        dd($res);
     }
 }

@@ -17,6 +17,15 @@ use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 
 class SecurityController extends AbstractController
 {
+    protected function sendErrorMessage($form, string $msg = null) : Response
+    {
+        return $this->render('security/signup.html.twig', [
+            'controller_name' => 'SecurityController',
+            'form' => $form->createView(),
+            'error' => $msg,
+        ]);
+    }
+
     #[Route('/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
@@ -46,8 +55,6 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('index');
         }
 
-        $error = null;
-
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
 
@@ -60,21 +67,12 @@ class SecurityController extends AbstractController
 
             if($userRepos->findOneBy(['email' => $user->getEmail()]))
             {
-                $error = 'Email already used';
+                return $this->sendErrorMessage($form, 'Email already used');
             }
 
             if($userRepos->findOneBy(['username' => $user->getUsername()]))
             {
-                $error = 'Username already used';
-            }
-            
-            if($error != null)
-            {
-                return $this->render('security/signup.html.twig', [
-                    'controller_name' => 'SecurityController',
-                    'form' => $form->createView(),
-                    'error' => $error,
-                ]);
+                return $this->sendErrorMessage($form, 'Username already used');
             }
             
             if($user->getPlainPassword() === $user->getPlainPasswordConfirm())
@@ -90,12 +88,16 @@ class SecurityController extends AbstractController
 
                 return $auth->authenticateUser($user, $loginAuth, $request);
             }
+            else
+            {
+                return $this->sendErrorMessage($form, 'The passwords must be identical');
+            }
         }
 
         return $this->render('security/signup.html.twig', [
             'controller_name' => 'SecurityController',
             'form' => $form->createView(),
-            'error' => $error,
+            'error' => null,
         ]);
     }
 }

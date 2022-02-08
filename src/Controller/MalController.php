@@ -5,14 +5,17 @@ namespace App\Controller;
 use App\Entity\Anime;
 use App\Entity\Genre;
 use App\Entity\ListType;
+use App\Entity\Priority;
 use App\Entity\User;
 use App\Entity\UserList;
+use DateTime;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class MalController extends AbstractController
 {
@@ -210,19 +213,21 @@ class MalController extends AbstractController
 
         $lists = $doctrine->getRepository(ListType::class)->findAll();
 
+        $isAlreadyAdd = false;
+        $userList = new UserList();
+        $userList->setProgressEpisodes(0);
+        $userList->setScore(11);
+        $userList->setListType((new ListType())->setListKey('plan-to-watch'));
+
         if($user = $this->getUser())
         {
             $userListRepos = $doctrine->getRepository(UserList::class);
-            $userList = $userListRepos->findOneBy(['user' => $user->getId(), 'anime' => $anime->getId()]);
-            $isAlreadyAdd = (bool) $userList;
-        }
-        else
-        {
-            $isAlreadyAdd = false;
-            $userList = new UserList();
-            $userList->setProgressEpisodes(0);
-            $userList->setScore(11);
-            $userList->setListType((new ListType())->setListKey('plan-to-watch'));
+
+            if($tmp = $userListRepos->findOneBy(['user' => $user->getId(), 'anime' => $anime->getId()]))
+            {
+                $userList = $tmp;
+                $isAlreadyAdd = true;
+            }
         }
 
         return $this->render('mal/anime.html.twig', [
@@ -262,13 +267,89 @@ class MalController extends AbstractController
         ]);
     }
 
+    #[Route('/add', name: 'add_to_list')]
+    public function add(Request $request, ManagerRegistry $doctrine) : Response
+    {
+        $user = $this->getUser();
+
+        if(!$user)
+        {
+            return new JsonResponse($this->generateUrl('app_login', [], UrlGeneratorInterface::ABSOLUTE_URL), 400);
+        }
+
+        $userList = new UserList();
+
+        $userList->setUser($user);
+        $userList->setAnime($doctrine->getRepository(Anime::class)->findOneBy(['id' => $request->get('animeId')]));
+        $userList->setListType($doctrine->getRepository(ListType::class)->findOneBy(['id' => $request->get('listId')]));
+        $userList->setScore($request->get('score'));
+        $userList->setProgressEpisodes($request->get('progressEpisodes'));
+        $userList->setModificationDate(new DateTime());
+        $userList->setPriority($doctrine->getRepository(Priority::class)->findOneBy(['id' => 2]));
+
+        $entityManager = $doctrine->getManager();
+
+        $entityManager->persist($userList);
+
+        $entityManager->flush();
+
+        return new JsonResponse('Anime '.$request->get('animeId').' has been correctly had into your list');
+    }
+
+    #[Route('/update', name: 'update_list')]
+    public function update(Request $request, ManagerRegistry $doctrine) : Response
+    {
+        $user = $this->getUser();
+
+        if(!$user)
+        {
+            return new JsonResponse($this->generateUrl('app_login', [], UrlGeneratorInterface::ABSOLUTE_URL), 400);
+        }
+
+        $userList = $doctrine->getRepository(UserList::class)->findOneBy(['user' => $user->getId(), 'anime' => $request->get('animeId')]);
+
+        $userList->setListType($doctrine->getRepository(ListType::class)->findOneBy(['id' => $request->get('listId')]));
+        $userList->setScore($request->get('score'));
+        $userList->setProgressEpisodes($request->get('progressEpisodes'));
+        $userList->setModificationDate(new DateTime());
+
+        $entityManager = $doctrine->getManager();
+
+        $entityManager->persist($userList);
+
+        $entityManager->flush();
+
+        return new JsonResponse('Anime '.$request->get('animeId').' has been correctly updated in your list');
+    }
+
+    #[Route('/delete', name: 'delete_from_list')]
+    public function delete(Request $request, ManagerRegistry $doctrine) : Response
+    {
+        $user = $this->getUser();
+
+        if(!$user)
+        {
+            return new JsonResponse($this->generateUrl('app_login', [], UrlGeneratorInterface::ABSOLUTE_URL), 400);
+        }
+
+        $userList = $doctrine->getRepository(UserList::class)->findOneBy(['user' => $user->getId(), 'anime' => $request->get('animeId')]);
+
+        $entityManager = $doctrine->getManager();
+
+        $entityManager->remove($userList);
+
+        $entityManager->flush();
+
+        return new JsonResponse('Anime '.$request->get('animeId').' has been correctly deleted from your list');
+    }
+
     #[Route('/test', name: 'test')]
     public function test(ManagerRegistry $doctrine)
     {
-        $repos = $doctrine->getRepository(Anime::class);
+        $repos = $doctrine->getRepository(UserList::class);
 
-        $res = $repos->getAnimesByTitle('fate', 10);
+        $res = $repos->findOneBy(['user' => 1]);
 
-        dd($res);
+        dd($res->getUser()->getUsername());
     }
 }

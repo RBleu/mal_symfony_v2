@@ -21,28 +21,7 @@ $(function(){
             password.attr('type', 'password');
         }
     });
-
-    $('.btn').on('click', () => {
-        let username = $('.username').val();
-        let password = $('.plainPassword').val();
-        let confirmPassword = $('.plainPasswordConfirm').val();
-
-        if(username.match(/^[\w]{4,20}$/g) != null && password.match(/^.{8,50}$/g) != null)
-        {
-            if(confirmPassword === undefined)
-            {
-                $('.log').trigger('submit');
-            }
-            else
-            {
-                if(password == confirmPassword)
-                {
-                    $('.log').trigger('submit');
-                }
-            }
-        }
-    });
-
+    
     $('.field').on('keyup', (e) => {
         if(e.keyCode == 13)
         {

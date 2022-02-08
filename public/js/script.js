@@ -6,6 +6,13 @@ $(function() {
         {
             $('.has-sub-menu + .header-sub-menu').hide();
         }
+
+        // Searchbar
+
+        if(!($(e.target).is('#search') || $(e.target).is('#search-btn')))
+        {
+            $('#search-result').hide();
+        }
     });
 
     $('.has-sub-menu').on('click', (e) => {

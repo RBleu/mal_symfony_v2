@@ -2,15 +2,7 @@ $(function(){
     $('#add').on('click', (e) => {
         e.preventDefault();
 
-        $('#list-select').show();
-        $('#delete').show();
-        $('#add').hide();
-
-        $('#user-score').removeAttr('disabled');
-        $('#watch-episodes').removeClass('disabled');
-        $('#number-of-episodes').removeAttr('disabled');
-
-        updateUserAnimeList('insert');
+        updateUserAnimeList('/add');
     });
 
     $('#list-select').on('change', () => {
@@ -21,49 +13,57 @@ $(function(){
         $('#list-select').addClass(listKey);
         selectedList.val(listKey);
 
-        updateUserAnimeList('update');
+        updateUserAnimeList('/update');
     });
 
     $('#user-score').on('change', () => {
-        updateUserAnimeList('update');
+        updateUserAnimeList('/update');
     });
 
     $('#number-of-episodes').on('input', () => {
         $('#number-of-episodes').val($('#number-of-episodes').val().replace(/[^0-9]/g, ''));
 
         let progressEpisodes = parseInt($('#number-of-episodes').val());
-        let totalEpisodes = parseInt($('#total-episodes').html());
+        let totalEpisodes = $('#total-episodes').html();
 
         if(totalEpisodes == '?')
         {
             totalEpisodes = 1000;
         }
+        else
+        {
+            totalEpisodes = parseInt(totalEpisodes);
+        } 
 
         if(progressEpisodes > totalEpisodes)
         {
             $('#number-of-episodes').val(totalEpisodes);
         }
 
-        updateUserAnimeList('update');
+        updateUserAnimeList('/update');
     });
 
     $('#watch-episodes a').on('click', (e) => {
         e.preventDefault();
 
         let progressEpisodes = parseInt($('#number-of-episodes').val());
-        let totalEpisodes = parseInt($('#total-episodes').html());
+        let totalEpisodes = $('#total-episodes').html();
 
         if(totalEpisodes == '?')
         {
             totalEpisodes = 1000;
         }
+        else
+        {
+            totalEpisodes = parseInt(totalEpisodes);
+        } 
 
         if(progressEpisodes + 1 <= totalEpisodes)
         {
             $('#number-of-episodes').val(progressEpisodes + 1);
         }
 
-        updateUserAnimeList('update');
+        updateUserAnimeList('/update');
     });
 
     $('#delete').on('click', (e) => {
@@ -73,67 +73,54 @@ $(function(){
     });
 });
 
-async function updateUserAnimeList(type)
+async function updateUserAnimeList(url)
 {
-    let username = $('#username').html();
+    let animeId = $('#anime-id').val();
+    let listId = $('#list-select').val();
+    let score = $('#user-score').val();
+    let progressEpisodes = $('#number-of-episodes').val();
 
-    if(username === undefined)
-    {
-        window.location.href = 'index.php?a=login';
-    }
-    else
-    {
-        let animeId = $('#anime-id').val();
-        let listId = $('#list-select').val();
-        let score = $('#user-score').val();
-        let progressEpisodes = $('#number-of-episodes').val();
+    $.ajax({
+        url: url,
+        method: 'POST',
+        data: {
+            animeId: animeId,
+            listId: listId,
+            score: score,
+            progressEpisodes: progressEpisodes
+        },
+        success: (msg) => {
+            console.log(msg);
 
-        $.ajax({
-            url: 'index.php?a=update',
-            method: 'POST',
-            data: {
-                username: username,
-                animeId: animeId,
-                listId: listId,
-                score: score,
-                progressEpisodes: progressEpisodes,
-                type: type
-            },
-            success: (msg) => {
-                console.log(msg);
-            },
-            error: (msg) => {
-                console.log(msg);
-            }
-        });
-    }
+            $('#list-select').show();
+            $('#delete').show();
+            $('#add').hide();
+
+            $('#user-score').removeAttr('disabled');
+            $('#watch-episodes').removeClass('disabled');
+            $('#number-of-episodes').removeAttr('disabled');
+        },
+        error: (msg) => {
+            window.location.href = msg.responseJSON;
+        },
+    });
 }
 
 async function deleteAnimeFromUserList()
 {
-    let username = $('#username').html();
+    let animeId = $('#anime-id').val();
 
-    if(username === undefined)
-    {
-        window.location.href = 'index.php?a=login';
-    }
-    else
-    {
-        let animeId = $('#anime-id').val();
-
-        $.ajax({
-            url: 'index.php?a=delete',
-            method: 'POST',
-            data: {
-                username: username,
-                animeId: animeId
-            },
-            success: () => {
-                location.reload();
-            },
-            error: () => {
-                
-            }
-        });
-    }
+    $.ajax({
+        url: '/delete',
+        method: 'POST',
+        data: {
+            animeId: animeId
+        },
+        success: () => {
+            location.reload();
+        },
+        error: (msg) => {
+            window.location.href = msg.responseJSON;
+        }
+    });
 }

@@ -95,7 +95,11 @@ class MalController extends AbstractController
         }
         else
         {
-            // DO SOMETHING
+            return $this->render('mal/error.html.twig', [
+                'controller_name' => 'MalController',
+                'error_title' => 'Invalid Username',
+                'error_msg' => 'Could not find the user '.$username.'. Please make sure you typed their name in correctly.',
+            ]);
         }
     }
 
@@ -171,7 +175,11 @@ class MalController extends AbstractController
         }
         else
         {
-            // DO SOMETHING
+            return $this->render('mal/error.html.twig', [
+                'controller_name' => 'MalController',
+                'error_title' => 'Invalid Username',
+                'error_msg' => 'Could not find the user '.$username.'. Please make sure you typed their name in correctly.',
+            ]);
         }
     }
 
@@ -202,58 +210,84 @@ class MalController extends AbstractController
     }
 
     #[Route('/anime/{id}', name: 'anime')]
-    public function anime(Anime $anime, ManagerRegistry $doctrine) : Response
+    public function anime($id, ManagerRegistry $doctrine) : Response
     {
-        $themes = [];
+        $animeRepos = $doctrine->getRepository(Anime::class);
 
-        foreach($anime->getThemes() as $theme)
+        if($anime = $animeRepos->find($id))
         {
-            $themes[$theme->getType()][] = $theme->getName();
-        }
+            $themes = [];
 
-        $lists = $doctrine->getRepository(ListType::class)->findAll();
-
-        $isAlreadyAdd = false;
-        $userList = new UserList();
-        $userList->setProgressEpisodes(0);
-        $userList->setScore(11);
-        $userList->setListType((new ListType())->setListKey('plan-to-watch'));
-
-        if($user = $this->getUser())
-        {
-            $userListRepos = $doctrine->getRepository(UserList::class);
-
-            if($tmp = $userListRepos->findOneBy(['user' => $user->getId(), 'anime' => $anime->getId()]))
+            foreach($anime->getThemes() as $theme)
             {
-                $userList = $tmp;
-                $isAlreadyAdd = true;
+                $themes[$theme->getType()][] = $theme->getName();
             }
-        }
 
-        return $this->render('mal/anime.html.twig', [
-            'controller_name' => 'MalController',
-            'anime' => $anime,
-            'themes' => $themes,
-            'lists' => $lists,
-            'is_already_add' => $isAlreadyAdd,
-            'user_list' => $userList,
-        ]);
+            $lists = $doctrine->getRepository(ListType::class)->findAll();
+
+            $isAlreadyAdd = false;
+            $userList = new UserList();
+            $userList->setProgressEpisodes(0);
+            $userList->setScore(11);
+            $userList->setListType((new ListType())->setListKey('plan-to-watch'));
+
+            if($user = $this->getUser())
+            {
+                $userListRepos = $doctrine->getRepository(UserList::class);
+
+                if($tmp = $userListRepos->findOneBy(['user' => $user->getId(), 'anime' => $anime->getId()]))
+                {
+                    $userList = $tmp;
+                    $isAlreadyAdd = true;
+                }
+            }
+
+            return $this->render('mal/anime.html.twig', [
+                'controller_name' => 'MalController',
+                'anime' => $anime,
+                'themes' => $themes,
+                'lists' => $lists,
+                'is_already_add' => $isAlreadyAdd,
+                'user_list' => $userList,
+            ]);
+        }
+        else
+        {
+            return $this->render('mal/error.html.twig', [
+                'controller_name' => 'MalController',
+                'error_title' => '404 Not Found',
+                'error_msg' => 'This page doesn\'t exist',
+            ]);
+        }
     }
 
     #[Route('/genre/{id}', name: 'genre')]
-    public function genre(Genre $genre) : Response
+    public function genre($id, ManagerRegistry $doctrine) : Response
     {
-        $title = $genre->getName().' - MAL';
-        $headerTitle = $genre->getName().' Anime';
+        $genreRepos = $doctrine->getRepository(Genre::class);
 
-        $animes = $genre->getAnimes();
+        if($genre = $genreRepos->find($id))
+        {
+            $title = $genre->getName().' - MAL';
+            $headerTitle = $genre->getName().' Anime';
 
-        return $this->render('mal/searchBase.html.twig', [
-            'controller_name' => 'MalController',
-            'title' => $title,
-            'header_title' => $headerTitle,
-            'animes' => $animes,
-        ]);
+            $animes = $genre->getAnimes();
+
+            return $this->render('mal/searchBase.html.twig', [
+                'controller_name' => 'MalController',
+                'title' => $title,
+                'header_title' => $headerTitle,
+                'animes' => $animes,
+            ]);
+        }
+        else
+        {
+            return $this->render('mal/error.html.twig', [
+                'controller_name' => 'MalController',
+                'error_title' => '404 Not Found',
+                'error_msg' => 'This page doesn\'t exist',
+            ]);
+        }
     }
 
     #[Route('/jump', name: 'jump')]
@@ -341,15 +375,5 @@ class MalController extends AbstractController
         $entityManager->flush();
 
         return new JsonResponse('Anime '.$request->get('animeId').' has been correctly deleted from your list');
-    }
-
-    #[Route('/test', name: 'test')]
-    public function test(ManagerRegistry $doctrine)
-    {
-        $repos = $doctrine->getRepository(UserList::class);
-
-        $res = $repos->findOneBy(['user' => 1]);
-
-        dd($res->getUser()->getUsername());
     }
 }
